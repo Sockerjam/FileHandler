@@ -1,5 +1,7 @@
 use std::fs::File;
 use std::fs::OpenOptions;
+use std::io::Seek;
+use std::io::SeekFrom;
 use std::io::{self, Write};
 
 pub struct User {
@@ -29,13 +31,14 @@ pub fn write_to_file(file: &mut File, user_name: &String) -> io::Result<()> {
     let has_data = { file.metadata()?.len() != 0 };
 
     if has_data {
+        file.seek(SeekFrom::End(0))?;
         file.write_all(b", ")?;
     }
 
     file.write_all(user_name.as_bytes())
 }
 
-pub fn should_read_content(input: &String) -> bool {
+pub fn confirm_action(input: &String) -> bool {
     match input.as_str() {
         "yes" => return true,
         "no" => return false,
@@ -53,14 +56,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_should_read_content_returns_true() {
-        let result = should_read_content(&String::from("yes"));
+    fn test_confirm_action_returns_true() {
+        let result = confirm_action(&String::from("yes"));
         assert!(result);
     }
 
     #[test]
-    fn test_should_read_content_returns_false() {
-        let result = should_read_content(&String::from("no"));
+    fn test_confirm_action_returns_false() {
+        let result = confirm_action(&String::from("no"));
         assert!(!result);
     }
 }
